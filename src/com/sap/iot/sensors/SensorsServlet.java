@@ -59,13 +59,13 @@ public class SensorsServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		// response.getWriter().write("Health in HANA\n");
-
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
 
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
 			Measurement measurement = extractMeasurementData(request);
 			dataHelper.addMeasurement(measurement);
+			response.getWriter().write("addmeasurement");
 		}
 	}
 
