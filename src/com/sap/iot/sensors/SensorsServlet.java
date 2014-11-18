@@ -89,8 +89,7 @@ public class SensorsServlet extends HttpServlet {
 			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/DefaultDB");
 			Map properties = new HashMap();
 			properties.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
-			emf = Persistence.createEntityManagerFactory("iotscenario",
-					properties);
+			emf = Persistence.createEntityManagerFactory("hihbe", properties);
 		} catch (NamingException e) {
 			throw new ServletException(e);
 		}
