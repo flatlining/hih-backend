@@ -1,14 +1,15 @@
 package org.persistence;
 
+import static javax.persistence.GenerationType.AUTO;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 
 @Entity
-@IdClass(Measurement.class)
 public class Measurement implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -17,12 +18,11 @@ public class Measurement implements Serializable {
 	}
 
 	@Id
+	@GeneratedValue(strategy = AUTO)
+	private long id;
 	private Timestamp timestp;
-	@Id
 	private String username;
-	@Id
 	private String device;
-	@Id
 	private String metric;
 	private Long value;
 
@@ -64,6 +64,14 @@ public class Measurement implements Serializable {
 
 	public void setValue(Long value) {
 		this.value = value;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public static long getSerialversionuid() {
