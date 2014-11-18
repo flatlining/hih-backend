@@ -6,12 +6,9 @@ import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 
 @Entity
 @IdClass(Measurement.class)
-@NamedQueries({ @NamedQuery(name = "AllMeasurements", query = "select m from Measurement m") })
 public class Measurement implements Serializable {
 
 	private static final long serialVersionUID = 1L;
