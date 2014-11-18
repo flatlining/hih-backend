@@ -34,8 +34,32 @@ public class SensorsServlet extends HttpServlet {
 		super();
 	}
 
+	@Override
+	public void destroy() {
+		emf.close();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void init() throws ServletException {
+		try {
+			InitialContext ctx = new InitialContext();
+			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/DefaultDB");
+
+			@SuppressWarnings("rawtypes")
+			Map properties = new HashMap();
+			properties.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
+			emf = Persistence.createEntityManagerFactory("hihbe", properties);
+		} catch (NamingException e) {
+			throw new ServletException(e);
+		}
+	}
+
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+
+		// response.getWriter().write("Health in HANA\n");
+
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
 
@@ -48,6 +72,7 @@ public class SensorsServlet extends HttpServlet {
 	private Measurement extractMeasurementData(HttpServletRequest request) {
 		Measurement measurement = new Measurement();
 
+		Timestamp timestp = new Timestamp(new Date().getTime());
 		String username = encodeText(request.getParameter("username"));
 		String device = encodeText(request.getParameter("device"));
 		String metric = encodeText(request.getParameter("metric"));
@@ -56,7 +81,7 @@ public class SensorsServlet extends HttpServlet {
 		if (username != null && username.length() > 0 && device != null
 				&& device.length() > 0 && metric != null && metric.length() > 0
 				&& value != null && value.length() > 0) {
-			measurement.setTimestp(new Timestamp(new Date().getTime()));
+			measurement.setTimestp(timestp);
 			measurement.setUsername(username);
 			measurement.setDevice(device);
 			measurement.setMetric(metric);
@@ -79,25 +104,5 @@ public class SensorsServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		this.doGet(request, response);
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public void init() throws ServletException {
-		try {
-			InitialContext ctx = new InitialContext();
-			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/DefaultDB");
-			Map properties = new HashMap();
-			properties.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
-			emf = Persistence.createEntityManagerFactory("hihbe", properties);
-		} catch (NamingException e) {
-			throw new ServletException(e);
-		}
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void destroy() {
-		emf.close();
 	}
 }
