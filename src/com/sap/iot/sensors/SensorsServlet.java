@@ -61,11 +61,13 @@ public class SensorsServlet extends HttpServlet {
 		// response.getWriter().write("Health in HANA\n");
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
+		
+		action = "addmeasurement";
 
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
 			Measurement measurement = extractMeasurementData(request);
 			dataHelper.addMeasurement(measurement);
-			response.getWriter().write("addmeasurement");
+			response.getWriter().write("1");
 		}
 	}
 
