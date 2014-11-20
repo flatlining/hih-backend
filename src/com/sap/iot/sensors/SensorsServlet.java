@@ -61,7 +61,7 @@ public class SensorsServlet extends HttpServlet {
 		// response.getWriter().write("Health in HANA\n");
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
-		
+
 		action = "addmeasurement";
 
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
@@ -74,7 +74,8 @@ public class SensorsServlet extends HttpServlet {
 	private Measurement extractMeasurementData(HttpServletRequest request) {
 		Measurement measurement = new Measurement();
 
-		Timestamp timestp = new Timestamp(new Date().getTime());
+		Timestamp timestp = new Timestamp(new Date().getTime()
+				- (2 * 60 * 60 * 1000));
 		String username = encodeText(request.getParameter("username"));
 		String device = encodeText(request.getParameter("device"));
 		String metric = encodeText(request.getParameter("metric"));
