@@ -62,12 +62,16 @@ public class SensorsServlet extends HttpServlet {
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
 
-		action = "addmeasurement";
+		if (action == null || action.length() <= 0) {
+			action = "addmeasurement";
+		}
+
+		response.getWriter().write("!");
 
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
+			response.getWriter().write("ad");
 			Measurement measurement = extractMeasurementData(request);
 			dataHelper.addMeasurement(measurement);
-			response.getWriter().write("1");
 		}
 	}
 
