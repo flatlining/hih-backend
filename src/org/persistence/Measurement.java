@@ -8,8 +8,11 @@ import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 @Entity
+@NamedQueries({ @NamedQuery(name = "LastDeviceMeasurements", query = "select m from Measurement m where m.username = :pUsername and m.device = :pDevice and m.metric = :pMetric and m.timestp =  (SELECT MAX(r.timestp) from Measurement r where r.username = :pUsername and r.device = :pDevice and r.metric = :pMetric)") })
 public class Measurement implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.InitialContext;
@@ -22,6 +23,7 @@ import javax.sql.DataSource;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.persistence.Measurement;
 
+import com.google.gson.Gson;
 import com.sap.security.core.server.csi.IXSSEncoder;
 import com.sap.security.core.server.csi.XSSEncoder;
 
@@ -66,13 +68,47 @@ public class SensorsServlet extends HttpServlet {
 			action = "addmeasurement";
 		}
 
-		response.getWriter().write("!");
-
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
-			response.getWriter().write("ad");
+			response.getWriter().write("am");
 			Measurement measurement = extractMeasurementData(request);
 			dataHelper.addMeasurement(measurement);
 		}
+
+		if (action != null && action.equalsIgnoreCase("getmeasurements")) {
+			String username = encodeText(request.getParameter("username"));
+			String device = encodeText(request.getParameter("device"));
+			String metric = encodeText(request.getParameter("metric"));
+
+			if (username != null && username.length() > 0 && device != null
+					&& device.length() > 0 && metric != null && metric.length() > 0) {
+				List<Measurement> deviceMeasurements = dataHelper
+						.getLastDeviceMeasurements(username, device, metric);
+				outputJsonForLastDeviceMeasurements(response,
+						deviceMeasurements);
+			}
+
+		}
+	}
+
+	private void outputJsonForLastDeviceMeasurements(
+			HttpServletResponse response, List<Measurement> sensorMeasurements) {
+		Gson gson = new Gson();
+		try {
+			response.getWriter().println("{");
+			for (int i = 0; i < sensorMeasurements.size(); i++) {
+				response.getWriter().println(
+						gson.toJson(sensorMeasurements.get(i)));
+
+				if (i != sensorMeasurements.size() - 1) {
+					response.getWriter().println(",");
+				}
+			}
+
+			response.getWriter().println("}");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private Measurement extractMeasurementData(HttpServletRequest request) {
