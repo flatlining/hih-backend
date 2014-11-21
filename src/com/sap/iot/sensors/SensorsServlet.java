@@ -60,16 +60,25 @@ public class SensorsServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
+		/*
+		 * response.addHeader("Access-Control-Allow-Origin", "*");
+		 * response.addHeader("Access-Control-Allow-Methods",
+		 * "GET, POST, OPTIONS, PUT, DELETE"); String reqACRHeaders = request
+		 * .getHeader("Access-Control-Request-Headers"); if (reqACRHeaders !=
+		 * null && !"".equals(reqACRHeaders.trim())) {
+		 * response.addHeader("Access-Control-Allow-Headers", reqACRHeaders); }
+		 */
+
 		// response.getWriter().write("Health in HANA\n");
 		String action = encodeText(request.getParameter("action"));
 		DataHelper dataHelper = new DataHelper(emf);
 
-		if (action == null || action.length() <= 0) {
-			action = "addmeasurement";
-		}
+		/*
+		 * if (action == null || action.length() <= 0) { action =
+		 * "addmeasurement"; }
+		 */
 
 		if (action != null && action.equalsIgnoreCase("addmeasurement")) {
-			response.getWriter().write("am");
 			Measurement measurement = extractMeasurementData(request);
 			dataHelper.addMeasurement(measurement);
 		}
@@ -80,7 +89,8 @@ public class SensorsServlet extends HttpServlet {
 			String metric = encodeText(request.getParameter("metric"));
 
 			if (username != null && username.length() > 0 && device != null
-					&& device.length() > 0 && metric != null && metric.length() > 0) {
+					&& device.length() > 0 && metric != null
+					&& metric.length() > 0) {
 				List<Measurement> deviceMeasurements = dataHelper
 						.getLastDeviceMeasurements(username, device, metric);
 				outputJsonForLastDeviceMeasurements(response,

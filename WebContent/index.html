@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="UTF-8">
+ 
+<title>HALP</title>
+ 
+	<script id="sap-ui-bootstrap" type="text/javascript"
+ 		src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js" 
+ 		data-sap-ui-theme="sap_bluecrystal"
+		data-sap-ui-libs="sap.m, sap.viz, sap.ui.commons">
+    </script>
+	<script type="text/javascript">
+		var oImage = new sap.ui.commons.Image();
+		oImage.setHeight("120px")
+		oImage.setWidth("200px");
+		oImage.setSrc("logo.png");
+		oImage.placeAt("cab");    
+	</script> 
+	<script type="text/javascript">
+	
+	var sURI = 'https://hihp1941014740trial.hanatrial.ondemand.com/hihbe/s/?action=getmeasurements&username=lucas&device=angel&metric=temp';
+    var oModel = new sap.ui.model.odata.ODataModel(sURI, true);
+	var heartBeat = oModel.valueOf("metric");	
+	//1. Create a JSON model (oModel).
+            //
+            var jsonModel = [           
+        		{	id : "Temperature",
+	        		title : "Temperature",
+	        		info: "Baby's Temperature",
+	        		icon:"temperature",
+	        		activeIcon:"temperature",
+	        		number:heartBeat,
+	        		numberUnit: "ºC",
+	        		infoState: sap.ui.core.ValueState.Error},
+	        		
+	       		{	id: "HeartBeat",
+        			number: 259.21,
+        			numberUnit: "Beats per Second",
+    			    title : "Heart Beat",
+    			    icon:"electrocardiogram",
+    			    infoState: sap.ui.core.ValueState.Error,
+    			    info: "Beats per Second"}];              
+            
+            var oModel = new sap.ui.model.json.JSONModel();
+        	oModel.setData({
+        		modelData : jsonModel
+        	});
+ 					 	
+        	//2. Define a factory method for StandardTile elements (standardTileFactory).    
+            var standardTileFactory = function(sId, oContext) {
+            	//bind all properties from https://sapui5.netweaver.ondemand.com/sdk/#docs/api/symbols/sap.m.StandardTile.html
+            	//except Type which had little effect Code:oTile.setType(sap.m.StandardTileType.Monitor);
+            	//+ include our id from the model as CustomData to the TreeNode
+            	
+        		var oTile = new sap.m.StandardTile(sId)
+            		.bindProperty("title",oContext.sPath+"/title")
+            		.bindProperty("info",oContext.sPath+"/info")
+            		.bindProperty("number",oContext.sPath+"/number")
+            		.bindProperty("numberUnit",oContext.sPath+"/numberUnit")
+            		.bindProperty("type",oContext.sPath+"/type")
+            		.bindProperty("infoState",oContext.sPath+"/infoState")
+            		//.bindProperty("icon",oContext.sPath+"/icon")
+            		.addCustomData(new sap.ui.core.CustomData({
+        				key: "modelId",	
+        				value: oContext.oModel.getProperty(oContext.sPath+"/id"),
+        				writeToDom: true}));
+ 	
+        		//Provide URI for icons
+        		var iconSrc = oContext.oModel.getProperty(oContext.sPath+"/icon");
+        		if(iconSrc){
+        			oTile.setIcon(sap.ui.core.IconPool.getIconURI(iconSrc));
+        		}
+        		//activeIcon does not seem to be used currently. Consider removing for now
+        		var activeIconSrc = oContext.oModel.getProperty(oContext.sPath+"/activeIcon");
+        		if(iconSrc){
+        			oTile.setActiveIcon(sap.ui.core.IconPool.getIconURI(activeIconSrc));
+        		}
+        		return oTile;
+     			
+        	};
+            
+        	//3. Define a method for dynamically populate the TreeNodes of a Tree based on its model (createDynamicTreeNodesFromModel)
+            function createDynamicTilesFromModel(oTileContainer, modelPath) {
+            	if(oTileContainer.hasModel()==false){
+            		console.log(oTileContainer + " has no model bound to it. Cannot create Tiles");
+            		return;
+            	}
+            	
+            	oTileContainer.bindAggregation("tiles",modelPath, standardTileFactory);	
+            	//oTileContainer.addTile(numTile);
+            	
+            }
+        	
+             
+            //4. Create an event handler method for when a Tile is clicked
+            function onMyTileClicked(oControlEvent){
+            	//COMMON code for all event handlers
+              var selectedId = oControlEvent.getParameter("id");
+              var selectedModelId=null;
+              
+              var customDataList = oControlEvent.getSource().getCustomData();
+              if(customDataList!=null && customDataList.length==1 && customDataList[0].getKey("modelId")){
+            	  modelId = customDataList[0].getValue("modelId");
+              }else {
+            	  console.log("modelId not bound as CustomData to the TreeNode");
+              }
+              
+              //selectedId now refers to the TreeNode element
+              //selectedModelId now refers to the id field from the model
+              
+              //SPECIFIC code for this Tree
+              //just updates a TextView with the ids we have found. 
+              if (modelId == "NFeMonitor"){
+            	  location.href = "monitor.html";			
+              }
+              else if (modelId == "ChartNFes"){
+            	  location.href = "nfechart.html"
+              }
+              else{
+            	  //alert("onTileNodeClicked ModelId:"+modelId + " \nsapui5 component id:"+selectedId);
+              }
+            }
+            
+            //5a. Create a TileContainer component
+        	//5b. Set the Model of the TileContainer component 
+        	var MyTileContainer = new sap.m.TileContainer("MyTileContainer");
+            MyTileContainer.setModel(oModel);
+            
+            //5c. Dynamically create TileNodes from the model
+            createDynamicTilesFromModel(MyTileContainer, "/modelData");
+            
+            //5d. Add event handler to all tiles 
+            //Event handler is a different for each TileContainer)
+            var tiles = MyTileContainer.getTiles();
+            if(tiles!=null && tiles.length>=1){
+            	for ( var i = 0; i < tiles.length; i++) {
+					tiles[i].attachPress(onMyTileClicked);
+				}
+            }
+ 
+            
+    		new sap.m.App({
+    			pages: [
+    				new sap.m.Page("numeric-tile-page1", {
+    					enableScrolling: false,
+    					showHeader: false,
+                        headerContent: [ ],
+    					title:"",
+    					content: [ MyTileContainer ]
+    				}) 				
+    			]
+    		}).placeAt("content");
+	 	
+	</script>
+	
+</head>
+<body class="sapUiBody" role="application">
+	<div id="cab" align="center"></div>
+	<div id="content"></div>
+</body>
+</html>
